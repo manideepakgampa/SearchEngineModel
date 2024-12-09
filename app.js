@@ -13,4 +13,3 @@ app.get("/animal", (req, res) => {
 app.listen(8000, () => {
   console.log("helloooow");
 });
-g;
