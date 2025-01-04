@@ -1,11 +1,18 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
-url = 'https://www.coursera.org/courses'
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+# Initialize the driver (it will use the path from the environment variables)
+driver = webdriver.Chrome()
 
-# Example: Scrape course titles
-courses = soup.find_all('h2', class_='course-title')
+# Open the Coursera courses page
+driver.get('https://www.coursera.org/courses')
+
+# Find the course titles by their class name
+courses = driver.find_elements(By.CLASS_NAME, 'course-title')
+
+# Print the course titles
 for course in courses:
-    print(course.get_text())
+    print(course.text)
+
+# Close the driver
+driver.quit()
