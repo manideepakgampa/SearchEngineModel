@@ -26,11 +26,10 @@ websites = [
     }
 ]
 
-# Initialize the driver
-driver = webdriver.Chrome()
-
 # Iterate over each website
 for site in websites:
+    # Initialize the driver for each website
+    driver = webdriver.Chrome()
     print(f"Accessing {site['name']}...")
     
     # Open the website
@@ -48,7 +47,15 @@ for site in websites:
     except Exception as e:
         print(f"Error accessing {site['name']}: {e}")
     
+    print(f"Close the browser window for {site['name']} to continue to the next site...")
+    
+    # Wait until the browser window is closed
+    while True:
+        try:
+            driver.title  # Try accessing the driver; if it's closed, an exception will occur
+            time.sleep(1)
+        except:
+            break  # Exit the loop when the browser window is closed
+    
+    print(f"{site['name']} closed. Moving to the next site...")
     print("-" * 50)
-
-# Close the driver
-driver.quit()
