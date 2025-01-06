@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -10,28 +11,32 @@ import threading
 websites = [
     {
         "name": "Coursera",
-        "url": "https://www.coursera.org/courses",
+        "url": "https://www.coursera.org/courses/?query=python",
         "element": {"by": By.CLASS_NAME, "value": "rc-DesktopSearchCard"}
     },
     {
         "name": "YouTube",
-        "url": "https://www.youtube.com/results?search_query=online+courses",
+        "url": "https://www.youtube.com/results?search_query=python+tutorial",
         "element": {"by": By.ID, "value": "video-title"}
     },
     {
         "name": "edX",
-        "url": "https://www.edx.org/search?tab=course&page=1",
+        "url": "https://www.edx.org/search?tab=python&page=1",
         "element": {"by": By.CLASS_NAME, "value": "course-card-name"}
     },
     {
         "name": "Udemy",
-        "url": "https://www.udemy.com/courses/search/?q=online%20courses",
+        "url": "https://www.udemy.com/courses/search/?q=python",
         "element": {"by": By.CLASS_NAME, "value": "course-card--course-title"}
     }
 ]
 
-# Initialize the browser with multiple tabs
-driver = webdriver.Chrome()
+# Set up Chrome options to modify the user-agent
+options = Options()
+options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+
+# Initialize the browser with multiple tabs and custom user-agent
+driver = webdriver.Chrome(options=options)
 
 # Open all websites in separate tabs
 driver.get(websites[0]["url"])  # Open the first website
