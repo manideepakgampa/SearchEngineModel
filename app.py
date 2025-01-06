@@ -1,49 +1,83 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
+import threading
 
-# List of websites and their respective URLs
+# List of websites and their respective element details for scraping
 websites = [
-    {"name": "Coursera", "url": "https://www.coursera.org/courses"},
-    {"name": "YouTube", "url": "https://www.youtube.com/"},
-    {"name": "edX", "url": "https://www.edx.org/"},
-    {"name": "Udemy", "url": "https://www.udemy.com/"},
+    {
+        "name": "Coursera",
+        "url": "https://www.coursera.org/courses",
+        "element": {"by": By.CLASS_NAME, "value": "rc-DesktopSearchCard"}
+    },
+    {
+        "name": "YouTube",
+        "url": "https://www.youtube.com/results?search_query=online+courses",
+        "element": {"by": By.ID, "value": "video-title"}
+    },
+    {
+        "name": "edX",
+        "url": "https://www.edx.org/search?tab=course&page=1",
+        "element": {"by": By.CLASS_NAME, "value": "course-card-name"}
+    },
+    {
+        "name": "Udemy",
+        "url": "https://www.udemy.com/courses/search/?q=online%20courses",
+        "element": {"by": By.CLASS_NAME, "value": "course-card--course-title"}
+    }
 ]
 
-# Setup WebDriver with options
-chrome_options = Options()
-chrome_options.add_argument("--start-maximized")
-driver = webdriver.Chrome(options=chrome_options)
+# Initialize the browser with multiple tabs
+driver = webdriver.Chrome()
 
-try:
-    # Open the first website in the initial tab
-    driver.get(websites[0]["url"])
-    print(f"Opening {websites[0]['name']}...")
+# Open all websites in separate tabs
+driver.get(websites[0]["url"])  # Open the first website
+for site in websites[1:]:
+    driver.execute_script(f"window.open('{site['url']}');")  # Open other sites in new tabs
+time.sleep(3)  # Allow tabs to load
 
-    # Open the remaining websites in new tabs
-    for site in websites[1:]:
-        driver.execute_script(f"window.open('{site['url']}', '_blank');")
-        print(f"Opening {site['name']}...")
+# Get all tab handles (this is done after all tabs are open)
+tabs = driver.window_handles
 
-    print("\nAll websites are now open in separate tabs. You can manually navigate between them.")
-    print("Close the browser window to exit the script.")
+def scrape_tab(index, site):
+    """Function to scrape data from a specific tab."""
+    driver.switch_to.window(tabs[index])
+    print(f"Scraping {site['name']}...")
 
-    # Keep the script running until the browser is closed
-    while True:
-        try:
-            # Check if the browser is still open
-            driver.title
-        except WebDriverException:
-            print("Browser closed. Exiting script.")
-            break
-        time.sleep(1)
-
-except Exception as e:
-    print(f"An error occurred: {e}")
-finally:
-    # Quit the driver if it's still open
     try:
-        driver.quit()
-    except WebDriverException:
-        pass
+        # Wait for the relevant elements to load
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((site["element"]["by"], site["element"]["value"]))
+        )
+        
+        # Scrape the course titles or relevant content
+        elements = driver.find_elements(site["element"]["by"], site["element"]["value"])
+        print(f"{site['name']} - Found {len(elements)} items:")
+        for idx, element in enumerate(elements[:10]):  # Print only the first 10 items
+            print(f"{idx + 1}: {element.text.strip()}")
+    except Exception as e:
+        print(f"Error scraping {site['name']}: {e}")
+
+# Real-time scraping on each tab
+def real_time_scraping():
+    for index, site in enumerate(websites):
+        scrape_tab(index, site)  # Use index to reference the correct tab
+
+# Thread for real-time scraping
+scraping_thread = threading.Thread(target=real_time_scraping)
+scraping_thread.start()
+
+print("All tabs are open. You can interact with the browser.")
+print("Close the browser window when done.")
+
+# Graceful exit handling
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("\nClosing browser...")
+    driver.quit()
+    scraping_thread.join()
