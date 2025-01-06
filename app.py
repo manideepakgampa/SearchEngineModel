@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
 import time
 
 # List of websites and their respective element details for scraping
@@ -31,31 +32,31 @@ for site in websites:
     # Initialize the driver for each website
     driver = webdriver.Chrome()
     print(f"Accessing {site['name']}...")
-    
+
     # Open the website
     driver.get(site["url"])
     time.sleep(3)  # Allow the page to load
-    
+
     try:
-        # Find the elements based on specified locator
-        elements = driver.find_elements(site["element"]["by"], site["element"]["value"])
+        # Fetch the page source using Selenium
+        page_source = driver.page_source
+
+        # Parse the page source with BeautifulSoup
+        soup = BeautifulSoup(page_source, "html.parser")
+
+        # Extract elements based on the specified details
+        elements = soup.find_all(site["element"]["by"].lower(), class_=site["element"]["value"] 
+                                 if site["element"]["by"] == By.CLASS_NAME else None)
+
         print(f"{site['name']} - Found {len(elements)} items:")
         
-        # Print text of the elements (limit to avoid clutter)
-        for idx, element in enumerate(elements[:10]):  # Print only first 10 items
+        # Print the text of the elements (limit to avoid clutter)
+        for idx, element in enumerate(elements[:10]):  # Print only the first 10 items
             print(f"{idx + 1}: {element.text.strip()}")
     except Exception as e:
         print(f"Error accessing {site['name']}: {e}")
-    
-    print(f"Close the browser window for {site['name']} to continue to the next site...")
-    
-    # Wait until the browser window is closed
-    while True:
-        try:
-            driver.title  # Try accessing the driver; if it's closed, an exception will occur
-            time.sleep(1)
-        except:
-            break  # Exit the loop when the browser window is closed
-    
-    print(f"{site['name']} closed. Moving to the next site...")
+
+    # Close the browser after processing
+    driver.quit()
+    print(f"{site['name']} completed.")
     print("-" * 50)
