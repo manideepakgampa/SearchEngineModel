@@ -1,36 +1,28 @@
-### main.py
-
-from scraping_model import initialize_driver, open_tabs, real_time_scraping
 from nlp_model import refine_query
-
+from scraping_model import initialize_driver, open_tabs, real_time_scraping
+import time
 def main():
-    """Main function to handle user input, process it, and scrape data."""
+    """Main function for managing the scraping process."""
     user_input = input("Enter your course search query: ")
-
-    # Process the query through the NLP model
-    refined_query = refine_query(user_input)
-    print(f"Refined Query: {refined_query}")
-
-    # Initialize the web driver
+    refined_query = refine_query(user_input)  # Process input using NLP
+    query = refined_query["preprocessed_query"]
+    print(f"\nRefined Query: {query}\n")
+    
     driver = initialize_driver()
-
-    # Open websites with refined query
-    tabs = open_tabs(driver, refined_query)
-
-    print("All tabs are open. You can interact with the browser.")
-    print("Close individual tabs manually or close the browser to exit.")
-
     try:
-        while True:
-            command = input("Enter 'scrape' to scrape data or 'exit' to close: ").strip().lower()
-            if command == 'scrape':
-                real_time_scraping(driver, tabs)
-            elif command == 'exit':
-                break
-    except KeyboardInterrupt:
-        print("\nExiting...")
+        tabs = open_tabs(driver, query)  # Open tabs for websites
+        real_time_scraping(driver, tabs)  # Scrape data from each tab
+    except Exception as e:
+        print(f"Error during scraping: {e}")
     finally:
-        driver.quit()
+        print("Tabs are open. You can interact with the browser.")
+        print("Close the browser when done.")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nClosing browser...")
+            driver.quit()
 
 if __name__ == "__main__":
     main()
