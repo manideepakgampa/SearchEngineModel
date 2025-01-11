@@ -23,10 +23,12 @@ websites = [
         "element": {"by": By.CLASS_NAME, "value": "course-card-name"}
     },
     {
-        "name": "Udemy",
-        "url": "https://www.udemy.com/courses/search/?q=",
-        "element": {"by": By.CLASS_NAME, "value": "course-card--course-title"}
+    "name": "Udemy",
+    "url": "https://www.udemy.com/courses/search/?q=",
+    "element": {"by": By.XPATH, "value": "//h3[contains(@class, 'course-card--course-title')]"}
     }
+
+
 ]
 
 # Set up Chrome options
