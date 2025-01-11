@@ -1,27 +1,36 @@
+### main.py
+
+from scraping_model import initialize_driver, open_tabs, real_time_scraping
 from nlp_model import refine_query
-from scraping_model import scrape_all_websites
 
 def main():
-    print("Welcome to the AI-Powered Search Engine!")
+    """Main function to handle user input, process it, and scrape data."""
     user_input = input("Enter your course search query: ")
 
-    # Step 1: NLP Processing
-    refined = refine_query(user_input)
-    print("\n--- NLP Output ---")
-    print(f"Original Query: {refined['original_query']}")
-    print(f"Preprocessed Query: {refined['preprocessed_query']}")
-    print(f"Intent: {refined['intent']}")
+    # Process the query through the NLP model
+    refined_query = refine_query(user_input)
+    print(f"Refined Query: {refined_query}")
 
-    # Step 2: Web Scraping
-    print("\n--- Scraping Results ---")
-    results = scrape_all_websites(refined['preprocessed_query'])
-    for site, data in results.items():
-        print(f"\nResults from {site}:")
-        if isinstance(data, list):
-            for idx, item in enumerate(data, start=1):
-                print(f"{idx}. {item}")
-        else:
-            print(data)
+    # Initialize the web driver
+    driver = initialize_driver()
+
+    # Open websites with refined query
+    tabs = open_tabs(driver, refined_query)
+
+    print("All tabs are open. You can interact with the browser.")
+    print("Close individual tabs manually or close the browser to exit.")
+
+    try:
+        while True:
+            command = input("Enter 'scrape' to scrape data or 'exit' to close: ").strip().lower()
+            if command == 'scrape':
+                real_time_scraping(driver, tabs)
+            elif command == 'exit':
+                break
+    except KeyboardInterrupt:
+        print("\nExiting...")
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
     main()
