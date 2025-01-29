@@ -1,6 +1,8 @@
 import os
+
 from pathlib import Path
 
+from elasticsearch import Elasticsearch
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-your-secret-key-here'
@@ -48,6 +50,14 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'HOST': 'http://localhost:9200',  # Explicitly using http
+    }
+}
+
+es = Elasticsearch(['http://localhost:9200'])  # Make sure to use http explicitly
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
