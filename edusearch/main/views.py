@@ -2,8 +2,8 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage
 from elasticsearch_dsl import Search, Q
-# from .search_indexes import EducationalResourceIndex
-# from .nlp.query_analyzer import get_bert_embeddings  # Your NLP module
+from .search_indexes import EducationalResourceIndex
+from .nlp.query_analyzer import get_bert_embeddings  # Your NLP module
 import math
 
 RESULTS_PER_PAGE = 8

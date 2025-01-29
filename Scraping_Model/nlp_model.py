@@ -1,20 +1,41 @@
-#Project-1\Scraping_Model\nlp_model.py
+import spacy
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from spacy.lang.en import English
 
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download("wordnet")
+class QueryProcessor:
+    def __init__(self):
+        nltk.download(['punkt', 'stopwords', 'wordnet'])
+        self.nlp = spacy.load("en_core_web_sm")
+        self.lemmatizer = WordNetLemmatizer()
+        self.stop_words = set(stopwords.words('english'))
 
-def refine_query(user_input):
-    """Process the user query and return a refined version."""
-    stop_words = set(stopwords.words("english"))
-    lemmatizer = WordNetLemmatizer()
-    
-    tokens = word_tokenize(user_input.lower())  # Tokenize and convert to lowercase
-    filtered_tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
-    
-    refined_query = " ".join(filtered_tokens)
-    return {"original_query": user_input, "preprocessed_query": refined_query}
+    def process_query(self, query):
+        """Advanced query processing pipeline"""
+        doc = self.nlp(query)
+        
+        # Extract entities
+        entities = [(ent.text, ent.label_) for ent in doc.ents]
+        
+        # Process tokens
+        tokens = [
+            self.lemmatizer.lemmatize(token.text.lower())
+            for token in doc
+            if not token.is_stop and token.is_alpha
+        ]
+        
+        return {
+            "original": query,
+            "processed": " ".join(tokens),
+            "entities": entities,
+            "semantic_terms": self._get_semantic_terms(doc)
+        }
+
+    def _get_semantic_terms(self, doc):
+        """Extract contextually important terms"""
+        return [
+            chunk.text.lower()
+            for chunk in doc.noun_chunks
+            if len(chunk.text.split()) < 4
+        ]

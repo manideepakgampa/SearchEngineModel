@@ -1,29 +1,47 @@
-#Project-1\Scraping_Model\main.py
-from nlp_model import refine_query
-from scraping_model import initialize_driver, open_tabs, real_time_scraping
-import time
-def main():
-    """Main function for managing the scraping process."""
-    user_input = input("Enter your course search query: ")
-    refined_query = refine_query(user_input)  # Process input using NLP
-    query = refined_query["preprocessed_query"]
-    print(f"\nRefined Query: {query}\n")
-    
-    driver = initialize_driver()
-    try:
-        tabs = open_tabs(driver, query)  # Open tabs for websites
-        real_time_scraping(driver, tabs)  # Scrape data from each tab
-    except Exception as e:
-        print(f"Error during scraping: {e}")
-    finally:
-        print("Tabs are open. You can interact with the browser.")
-        print("Close the browser when done.")
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nClosing browser...")
-            driver.quit()
+from nlp.query_processor import QueryProcessor
+from scrapers.web_scraper import EduScraper
+from django.db import transaction
+from main.models import EducationalResource
 
-if __name__ == "__main__":
-    main()
+class EduSearchPipeline:
+    def __init__(self):
+        self.query_processor = QueryProcessor()
+        self.scraper = EduScraper()
+    
+    @transaction.atomic
+    def execute_search(self, raw_query):
+        """End-to-end search pipeline"""
+        # 1. Process query
+        processed = self.query_processor.process_query(raw_query)
+        
+        # 2. Scrape platforms
+        scraped_data = self.scraper.scrape_all(processed['processed'])
+        
+        # 3. Transform & Save
+        resources = []
+        for platform, items in scraped_data.items():
+            for item in items:
+                resources.append(
+                    EducationalResource(
+                        title=item['title'],
+                        url=item['url'],
+                        content=item['description'],
+                        source=platform,
+                        resource_type=self._determine_type(platform, item),
+                        keywords=processed['semantic_terms']
+                    )
+                )
+        
+        # 4. Bulk create and index
+        EducationalResource.objects.bulk_create(resources)
+        return processed, resources
+    
+    def _determine_type(self, platform, item):
+        """Map platform to resource type"""
+        type_map = {
+            'YouTube': 'video',
+            'Coursera': 'course',
+            'edX': 'course',
+            'Udemy': 'course'
+        }
+        return type_map.get(platform, 'other')
