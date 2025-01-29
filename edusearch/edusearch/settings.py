@@ -1,3 +1,4 @@
+#Project-1\edusearch\edusearch\settings.py
 """
 Django settings for edusearch project.
 

@@ -1,48 +1,121 @@
+<!-- Project-1/edusearch/main/templates/main_page.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduSearch</title>
+    <title>EduSearch AI</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
     />
     <style>
+      :root {
+        --primary-red: #d9534f;
+        --dark-bg: #1a1a1a;
+        --card-bg: #2d2d2d;
+      }
       body {
-        background-color: #1a1a1a;
+        background-color: var(--dark-bg);
         color: white;
-        text-align: center;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-brand {
+        color: var(--primary-red) !important;
+        font-weight: 700;
       }
       .search-container {
-        margin-top: 20vh;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 2rem;
       }
       .btn-search {
-        background-color: #d9534f;
+        background-color: var(--primary-red);
         color: white;
+        transition: transform 0.2s;
+      }
+      .btn-search:hover {
+        transform: scale(1.05);
+      }
+      footer {
+        background-color: #00000030;
+        padding: 1rem;
+        margin-top: auto;
       }
     </style>
   </head>
   <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand nav-brand" href="/">EduSearch AI</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/resources">Resources</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
     <div class="container search-container">
-      <h1>Welcome to EduSearch</h1>
-      <p>
-        The search engine tailored for educational purposes. Find articles,
-        papers, and resources to aid learning and teaching.
-      </p>
+      <div class="text-center mb-5">
+        <h1 class="display-4 mb-3">Discover Learning Resources</h1>
+        <p class="lead">
+          AI-powered search engine for courses, research papers, and educational
+          content
+        </p>
+      </div>
+
       <form
         action="/search/"
         method="get"
         class="d-flex justify-content-center"
       >
-        <input
-          type="text"
-          name="q"
-          class="form-control w-50"
-          placeholder="Search for educational resources..."
-        />
-        <button type="submit" class="btn btn-search ms-2">Search</button>
+        <div class="input-group w-75">
+          <input
+            type="text"
+            name="q"
+            class="form-control form-control-lg"
+            placeholder="Search for courses, tutorials, or research papers..."
+            aria-label="Search input"
+          />
+          <button type="submit" class="btn btn-search btn-lg px-4">
+            <i class="bi bi-search"></i> Search
+          </button>
+        </div>
       </form>
     </div>
+
+    <footer class="text-center">
+      <div class="container">
+        <p class="mb-0">
+          EduSearch AI &copy; 2024 | Empowering Education with AI
+        </p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
   </body>
 </html>

@@ -1,3 +1,4 @@
+#Project-1\Scraping_Model\main.py
 from nlp_model import refine_query
 from scraping_model import initialize_driver, open_tabs, real_time_scraping
 import time
